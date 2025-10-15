@@ -1,7 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import InsightCard, { Insight } from "./InsightCard";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, ChevronRight, Calendar, Menu, User } from "lucide-react";
+import { ChevronLeft, ChevronRight, Calendar, Menu, LogOut } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
+import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 // Mock data
 const MOCK_INSIGHTS: Insight[] = [
@@ -77,6 +81,64 @@ interface DashboardProps {
 
 const Dashboard = ({ selectedTopics }: DashboardProps) => {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const [insights, setInsights] = useState<Insight[]>(MOCK_INSIGHTS);
+  const { signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchInsights = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('insights')
+          .select('*, topics(*)')
+          .in('topic_id', selectedTopics)
+          .eq('date', new Date().toISOString().split('T')[0])
+          .order('generated_at', { ascending: false });
+
+        if (error) throw error;
+
+        if (data && data.length > 0) {
+          const formattedInsights: Insight[] = data.map(insight => {
+            const sources = Array.isArray(insight.source_links) 
+              ? insight.source_links.map((link: any) => ({
+                  title: link.title || '',
+                  url: link.url || ''
+                }))
+              : [];
+
+            return {
+              id: insight.id,
+              topic: insight.topics?.name || '',
+              title: insight.title,
+              summary: Array.isArray(insight.summary) ? insight.summary : [insight.summary],
+              sources,
+              timestamp: new Date(insight.generated_at).toLocaleTimeString('en-US', { 
+                hour: 'numeric', 
+                minute: '2-digit' 
+              }),
+              topicColor: insight.topics?.color || 'bg-gradient-to-r from-blue-500 to-cyan-500'
+            };
+          });
+          setInsights(formattedInsights);
+        }
+      } catch (error) {
+        console.error('Error fetching insights:', error);
+        // Use mock data if fetch fails
+      }
+    };
+
+    fetchInsights();
+  }, [selectedTopics]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    toast({
+      title: "Signed out",
+      description: "You've been successfully signed out.",
+    });
+    navigate('/');
+  };
 
   const nextInsight = () => {
     setCurrentIndex((prev) => (prev + 1) % MOCK_INSIGHTS.length);
@@ -107,11 +169,8 @@ const Dashboard = ({ selectedTopics }: DashboardProps) => {
                 <Calendar className="w-4 h-4" />
                 <span className="hidden sm:inline">Today</span>
               </Button>
-              <Button variant="ghost" size="icon">
-                <Menu className="w-5 h-5" />
-              </Button>
-              <Button variant="ghost" size="icon">
-                <User className="w-5 h-5" />
+              <Button variant="ghost" size="icon" onClick={handleSignOut} title="Sign Out">
+                <LogOut className="w-5 h-5" />
               </Button>
             </div>
           </div>
@@ -156,7 +215,7 @@ const Dashboard = ({ selectedTopics }: DashboardProps) => {
               className="flex transition-transform duration-500 ease-out"
               style={{ transform: `translateX(-${currentIndex * 100}%)` }}
             >
-              {MOCK_INSIGHTS.map((insight) => (
+              {insights.map((insight) => (
                 <div key={insight.id} className="w-full flex-shrink-0 px-2">
                   <InsightCard insight={insight} />
                 </div>
@@ -176,7 +235,7 @@ const Dashboard = ({ selectedTopics }: DashboardProps) => {
 
           {/* Indicators */}
           <div className="flex justify-center gap-2 mt-8">
-            {MOCK_INSIGHTS.map((_, idx) => (
+            {insights.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentIndex(idx)}
@@ -193,7 +252,7 @@ const Dashboard = ({ selectedTopics }: DashboardProps) => {
         {/* Stats */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-16 max-w-4xl mx-auto">
           <div className="text-center p-6 bg-background rounded-xl shadow-card border border-border">
-            <div className="text-3xl font-bold text-primary mb-2">{MOCK_INSIGHTS.length}</div>
+            <div className="text-3xl font-bold text-primary mb-2">{insights.length}</div>
             <div className="text-sm text-muted-foreground">Insights Today</div>
           </div>
           <div className="text-center p-6 bg-background rounded-xl shadow-card border border-border">

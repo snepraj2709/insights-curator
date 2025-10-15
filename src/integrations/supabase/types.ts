@@ -14,16 +14,190 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      digests: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          insights: Json
+          intro_text: string
+          sent_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date?: string
+          id?: string
+          insights?: Json
+          intro_text: string
+          sent_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          insights?: Json
+          intro_text?: string
+          sent_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      insights: {
+        Row: {
+          date: string
+          generated_at: string
+          id: string
+          source_links: Json
+          summary: string
+          title: string
+          topic_id: string
+        }
+        Insert: {
+          date?: string
+          generated_at?: string
+          id?: string
+          source_links?: Json
+          summary: string
+          title: string
+          topic_id: string
+        }
+        Update: {
+          date?: string
+          generated_at?: string
+          id?: string
+          source_links?: Json
+          summary?: string
+          title?: string
+          topic_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "insights_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email: string
+          id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      topics: {
+        Row: {
+          color: string
+          created_at: string
+          description: string | null
+          icon: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          description?: string | null
+          icon: string
+          id: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          description?: string | null
+          icon?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_topics: {
+        Row: {
+          created_at: string
+          id: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_topics_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +324,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+    },
   },
 } as const

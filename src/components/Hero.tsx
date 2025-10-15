@@ -5,6 +5,10 @@ import { useNavigate } from "react-router-dom";
 const Hero = () => {
   const navigate = useNavigate();
 
+  const handleGetStarted = () => {
+    navigate('/auth');
+  };
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-hero">
       {/* Animated background elements */}
@@ -36,7 +40,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center pt-4">
             <Button 
               size="lg" 
-              onClick={() => navigate('/onboarding')}
+              onClick={handleGetStarted}
               className="bg-background text-primary hover:bg-background/90 shadow-elevated group px-8 py-6 text-lg"
             >
               Start Free Trial
