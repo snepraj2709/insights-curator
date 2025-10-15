@@ -27,7 +27,20 @@ const Auth = () => {
           email,
           password,
         });
-        if (error) throw error;
+        
+        if (error) {
+          // If invalid credentials, suggest signing up
+          if (error.message.includes("Invalid login credentials")) {
+            toast({
+              title: "Account not found",
+              description: "This email isn't registered yet. Please sign up to create an account.",
+              variant: "destructive",
+            });
+            setIsLogin(false); // Switch to sign up form
+            return;
+          }
+          throw error;
+        }
         
         toast({
           title: "Welcome back!",
