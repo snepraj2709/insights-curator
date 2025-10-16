@@ -14,6 +14,50 @@ export type Database = {
   }
   public: {
     Tables: {
+      crawl_sources: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          id: string
+          last_crawled_at: string | null
+          status: Database["public"]["Enums"]["crawl_status"]
+          topic_id: string
+          updated_at: string
+          url: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          status?: Database["public"]["Enums"]["crawl_status"]
+          topic_id: string
+          updated_at?: string
+          url: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          last_crawled_at?: string | null
+          status?: Database["public"]["Enums"]["crawl_status"]
+          topic_id?: string
+          updated_at?: string
+          url?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crawl_sources_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       digests: {
         Row: {
           created_at: string
@@ -198,6 +242,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user"
+      crawl_status: "pending" | "crawling" | "completed" | "failed"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -326,6 +371,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user"],
+      crawl_status: ["pending", "crawling", "completed", "failed"],
     },
   },
 } as const

@@ -1,1 +1,4 @@
 project_id = "ealevlfuedvfutzuxifk"
+
+[functions.crawl-and-curate]
+verify_jwt = false

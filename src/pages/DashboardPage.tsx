@@ -3,6 +3,8 @@ import { useNavigate } from "react-router-dom";
 import Dashboard from "@/components/Dashboard";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { CrawlSourceManager } from "@/components/CrawlSourceManager";
 
 const DashboardPage = () => {
   const navigate = useNavigate();
@@ -58,7 +60,30 @@ const DashboardPage = () => {
     return null;
   }
 
-  return <Dashboard selectedTopics={selectedTopics} />;
+  return (
+    <div className="min-h-screen bg-gradient-subtle">
+      <Tabs defaultValue="insights" className="w-full">
+        <div className="border-b bg-background/50 backdrop-blur-sm sticky top-0 z-10">
+          <div className="container mx-auto px-4">
+            <TabsList className="h-14">
+              <TabsTrigger value="insights" className="text-base">Insights</TabsTrigger>
+              <TabsTrigger value="sources" className="text-base">Crawl Sources</TabsTrigger>
+            </TabsList>
+          </div>
+        </div>
+        
+        <TabsContent value="insights" className="m-0">
+          <Dashboard selectedTopics={selectedTopics} />
+        </TabsContent>
+        
+        <TabsContent value="sources" className="m-0">
+          <div className="container mx-auto px-4 py-8">
+            <CrawlSourceManager />
+          </div>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
 };
 
 export default DashboardPage;
